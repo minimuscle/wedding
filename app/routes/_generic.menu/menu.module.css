@@ -1,0 +1,13 @@
+.sliders {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  text-align: center;
+  gap: rem(20px);
+  width: 150%;
+  margin-left: -25%;
+
+  img {
+    width: 30%;
+  }
+}
