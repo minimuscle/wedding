@@ -1,0 +1,52 @@
+@font-face {
+  font-family: 'Charmonman';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../../assets/fonts/Charmonman-Regular.ttf');
+}
+
+.container {
+  background-color: #fff9ed;
+  padding: rem(20px);
+  min-height: 100vh; /** Sets the background colour to be at least the height of the viewport */
+}
+
+.header {
+  height: rem(500px);
+  position: relative;
+}
+
+.background {
+  position: absolute;
+  top: rem(-20px);
+  left: rem(-20px);
+  bottom: rem(-20px);
+  opacity: 0.25;
+  width: calc(100% + rem(40px));
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  max-height: rem(500px);
+}
+
+.overlay {
+  position: absolute;
+  z-index: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  h1 {
+    font-family: 'Charmonman', cursive, sans-serif;
+    font-size: rem(75px);
+    margin: 0;
+  }
+  h2 {
+    font-family: 'Charmonman', cursive, sans-serif;
+    font-size: rem(32px);
+    margin: 0;
+  }
+}
