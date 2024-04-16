@@ -5,6 +5,17 @@
   src: url('../../assets/fonts/Charmonman-Regular.ttf');
 }
 
+@font-face {
+  font-family: 'Comfortaa';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../../assets/fonts/Comfortaa-VariableFont_wght.ttf');
+}
+
+* {
+  font-family: 'Comfortaa', serif;
+}
+
 .container {
   background-color: #fff9ed;
   padding: rem(20px);
@@ -38,6 +49,8 @@
   justify-content: center;
   align-items: center;
   height: 100%;
+  max-height: rem(500px);
+  margin-top: rem(-50px);
   width: 100%;
   h1 {
     font-family: 'Charmonman', cursive, sans-serif;
@@ -47,6 +60,15 @@
   h2 {
     font-family: 'Charmonman', cursive, sans-serif;
     font-size: rem(32px);
-    margin: 0;
+  }
+
+  a {
+    margin-top: rem(30px);
+    border: 2px solid #f6b64f;
+    padding: rem(20px);
+    background-color: #8f6a2e;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
   }
 }
