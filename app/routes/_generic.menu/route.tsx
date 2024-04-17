@@ -32,11 +32,36 @@ export default function Menu() {
       </ul>
       <p>Guests will have the option of any 2 of the below Sliders:</p>
       <div className={classes.sliders}>
-        <img src={beef} alt='Beef Cheeseburger' />
-        <img src={kim} alt='Kimchi Fried Chicken' />
-        <img src={bbq} alt='BBQ Pulled Pork' />
-        <img src={shroom} alt='Crispy Mushroom' />
+        <div className={classes.option}>
+          <img src={beef} alt='Beef Cheeseburger' />
+        </div>
+        <div className={classes.option}>
+          <img src={kim} alt='Kimchi Fried Chicken' />
+        </div>
+        <div className={classes.option}>
+          <img src={bbq} alt='BBQ Pulled Pork' />
+        </div>
+        <div className={classes.option}>
+          <img src={shroom} alt='Crispy Mushroom' />
+        </div>
       </div>
+      <h2>Dessert : Various</h2>
+      <p>There will be various desserts for everyone, served on a dessert table, it will include:</p>
+      <ul>
+        <li>Hot Jam Donuts</li>
+        <li>Yum-yum Balls (Chocolate truffle balls)</li>
+        <li>Vanilla Sponge Sheet Cake (Raspberry Filling)</li>
+        <li>Currently accepting more ideas...</li>
+      </ul>
+      <h1>Drinks</h1>
+      <p>We wanted to keep the drinks as simple as possible. We will provide a few options</p>
+      <ul>
+        <li>2 Different Beers (To be decided)</li>
+        <li>Apple Cider</li>
+        <li>Soft Drinks</li>
+        <li>Water</li>
+      </ul>
+      <p>Spirits and other alcohol is allowed, but guests are encouraged to BYO as it will not be provided.</p>
     </div>
   )
 }

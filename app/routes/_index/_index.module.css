@@ -20,6 +20,7 @@
   background-color: #fff9ed;
   padding: rem(20px);
   min-height: 100vh; /** Sets the background colour to be at least the height of the viewport */
+  position: relative;
 }
 
 .header {
@@ -32,7 +33,7 @@
   top: rem(-20px);
   left: rem(-20px);
   bottom: rem(-20px);
-  opacity: 0.25;
+  opacity: 0.3;
   width: calc(100% + rem(40px));
   height: 100%;
   object-fit: cover;
@@ -64,14 +65,34 @@
 
   a {
     margin-top: rem(30px);
-    border: 2px solid #f6b64f;
+    border: 2px solid #422800;
     padding: rem(20px);
-    background-color: #8f6a2e;
-    color: #fff;
+    background-color: #fbeee0;
+    border-radius: rem(10px);
+    box-shadow: #422800 4px 4px 0 0;
+    color: #422800;
     text-decoration: none;
     font-weight: 600;
     font-size: rem(20px);
     min-width: rem(200px);
+
+    &:hover {
+      background-color: #ffdbb5;
+    }
+
+    &:active {
+      box-shadow: #422800 2px 2px 0 0;
+      transform: translate(2px, 2px);
+    }
+  }
+
+  @mixin smaller-than 768px {
+    h1 {
+      font-size: rem(50px);
+    }
+    h2 {
+      font-size: rem(24px);
+    }
   }
 }
 
@@ -84,18 +105,71 @@
   .buttonGroup {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
     width: 100%;
-    gap: rem(50px);
+    gap: rem(20px);
     margin-bottom: rem(20px);
 
     a {
       padding: rem(20px);
       min-width: rem(200px);
-      border: 2px solid #f6b64f;
-      background-color: #8f6a2e;
-      color: #fff;
+      border: 2px solid #422800;
+      background-color: #fbeee0;
+      border-radius: rem(10px);
+      box-shadow: #422800 4px 4px 0 0;
+      color: #422800;
       text-decoration: none;
       font-weight: 600;
+
+      &:hover {
+        background-color: #ffdbb5;
+      }
+
+      &:active {
+        box-shadow: #422800 2px 2px 0 0;
+        transform: translate(2px, 2px);
+      }
     }
+  }
+}
+
+.admin {
+  position: absolute;
+  bottom: rem(10px);
+  left: 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* CSS */
+.button {
+  background-color: #fbeee0;
+  border: 2px solid #422800;
+  border-radius: 30px;
+  box-shadow: #422800 4px 4px 0 0;
+  color: #422800;
+  cursor: pointer;
+  display: inline-block;
+  font-weight: 600;
+  font-size: 18px;
+  padding: 0 18px;
+  line-height: 50px;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.button:active {
+  box-shadow: #422800 2px 2px 0 0;
+  transform: translate(2px, 2px);
+}
+
+@media (min-width: 768px) {
+  .button {
+    min-width: 120px;
+    padding: 0 25px;
   }
 }

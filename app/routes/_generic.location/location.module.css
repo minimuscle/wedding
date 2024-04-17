@@ -1,0 +1,14 @@
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: rem(20px);
+  img {
+    max-width: 100%;
+    max-height: rem(280px);
+
+    @mixin smaller-than 990px {
+      max-height: rem(400px);
+    }
+  }
+}

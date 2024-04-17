@@ -2,12 +2,16 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  text-align: center;
   gap: rem(20px);
-  width: 150%;
-  margin-left: -25%;
+  text-align: center;
+  .option {
+    img {
+      width: 100%;
+      max-height: rem(300px);
 
-  img {
-    width: 30%;
+      @mixin smaller-than 768px {
+        max-height: rem(400px);
+      }
+    }
   }
 }
