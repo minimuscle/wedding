@@ -21,12 +21,22 @@ export default function Index() {
       <div className={classes.content}>
         <h1>Quick Links</h1>
         <div className={classes.buttonGroup}>
-          <Link to='/about'>About</Link>
-          <Link to='/menu'>Menu</Link>
-          <Link to='/location'>Location</Link>
-          <Link to='/dress-code'>Dress Code</Link>
+          <Link to='/about' prefetch='intent'>
+            About
+          </Link>
+          <Link to='/menu' prefetch='intent'>
+            Menu
+          </Link>
+          <Link to='/location' prefetch='intent'>
+            Location
+          </Link>
+          <Link to='/dress-code' prefetch='intent'>
+            Dress Code
+          </Link>
         </div>
-        <Link to='/admin'>Admin? Click Here</Link>
+        <Link to='/admin' prefetch='intent' className={classes.admin}>
+          Admin? Click Here
+        </Link>
       </div>
     </div>
   )
