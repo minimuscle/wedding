@@ -1,6 +1,5 @@
 import type { MetaFunction } from '@remix-run/node'
 import classes from './generic.module.css'
-import background from '~/assets/images/background.jpg'
 import { Link, Outlet, useLocation } from '@remix-run/react'
 import { Container } from '@mantine/core'
 
@@ -22,13 +21,12 @@ export default function About() {
   return (
     <div className={classes.container}>
       <div className={classes.header}>
-        <img className={classes.background} src={background} alt='background' />
         <div className={classes.overlay}>
           <Link to='/'>Home</Link>
           <h1>{heading}</h1>
         </div>
       </div>
-      <Container>
+      <Container className={classes.content}>
         <Outlet />
       </Container>
     </div>
