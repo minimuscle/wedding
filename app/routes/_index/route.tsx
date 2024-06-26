@@ -14,7 +14,7 @@ export default function Index() {
         <div className={classes.overlay}>
           <h2>Welcome to Josh and Nathan&apos;s</h2>
           <h1>High -Fantasy Wedding</h1>
-          <Link to='/rsvp'>RSVP Here</Link>
+          <Link to='#' />
         </div>
       </div>
       <div className={classes.content}>

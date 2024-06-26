@@ -27,9 +27,9 @@
 }
 
 .header {
-  height: rem(250px);
+  height: rem(350px);
   position: relative;
-  color: gold;
+  color: #4d2c00;
 }
 
 .overlay {
@@ -41,12 +41,12 @@
   justify-content: center;
   align-items: center;
   height: 100%;
-  max-height: rem(250px);
+  max-height: rem(350px);
   margin-top: rem(-25px);
   width: 100%;
   h1 {
     font-family: 'Charmonman', cursive, sans-serif;
-    font-size: rem(75px);
+    font-size: rem(60px);
     margin: 0;
   }
   a {
@@ -58,6 +58,13 @@
     font-size: rem(24px);
     text-decoration: none;
     font-weight: 600;
+  }
+
+  img {
+    width: rem(550px);
+    position: absolute;
+    left: 36%;
+    z-index: -1;
   }
 }
 
