@@ -1,0 +1,96 @@
+@font-face {
+  font-family: 'Charmonman';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../../assets/fonts/Charmonman-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Comfortaa';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../../assets/fonts/Comfortaa-VariableFont_wght.ttf');
+}
+
+* {
+  font-family: 'Comfortaa', serif;
+}
+
+.container {
+  background-color: #fff9ed;
+  padding: rem(20px);
+  min-height: 100vh; /** Sets the background colour to be at least the height of the viewport */
+  background-image: url('../../assets/images/background.png');
+  background-size: cover;
+  background-position: top 50% right;
+  background-repeat: no-repeat;
+}
+
+.header {
+  height: rem(350px);
+  position: relative;
+  color: #4d2c00;
+}
+
+.overlay {
+  position: absolute;
+  z-index: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  max-height: rem(350px);
+  margin-top: rem(-25px);
+  width: 100%;
+  h1 {
+    font-family: 'Charmonman', cursive, sans-serif;
+    font-size: rem(60px);
+    margin: 0;
+  }
+  a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: rem(30px);
+    color: #000;
+    font-size: rem(24px);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  img {
+    width: rem(550px);
+    position: absolute;
+    left: 36%;
+    z-index: -1;
+  }
+}
+
+.content {
+  background-color: #f5f5dc;
+  display: flex;
+  flex-wrap: wrap;
+  padding: rem(50px);
+  border-radius: 12px;
+  border: 4px solid rgb(122, 69, 0);
+
+  align-items: center;
+  justify-content: center;
+
+  label {
+    font-size: rem(24px);
+  }
+
+  p {
+    margin: 0;
+    color: #888888;
+    font-size: rem(14px);
+  }
+
+  input {
+    font-size: rem(24px);
+    height: rem(50px);
+  }
+}
