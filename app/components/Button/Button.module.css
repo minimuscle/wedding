@@ -1,0 +1,33 @@
+.button {
+  .image {
+    display: block;
+  }
+
+  .hover {
+    display: none;
+  }
+
+  .active {
+    display: none;
+  }
+
+  &:hover {
+    .image {
+      display: none;
+    }
+
+    .hover {
+      display: block;
+    }
+  }
+
+  &:active {
+    .hover {
+      display: none;
+    }
+
+    .active {
+      display: block;
+    }
+  }
+}

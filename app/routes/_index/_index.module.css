@@ -32,7 +32,7 @@
 
   background-image: url('../../assets/images/background.png');
   background-size: cover;
-  background-position: top 20% right;
+  background-position: top;
   background-repeat: no-repeat;
 }
 
@@ -61,6 +61,10 @@
     color: #fff;
     text-shadow: -5px 5px 2px rgba(0, 0, 0, 0.4);
     font-weight: 600;
+
+    @media screen and (max-width: 520px) {
+      font-size: rem(50px);
+    }
   }
 
   h2 {
@@ -71,47 +75,6 @@
 
   a {
     margin-top: rem(30px);
-    height: 85px;
-    width: 300px;
-    background-image: url('../../assets/images/Asset 3.webp');
-    background-repeat: no-repeat;
-    background-size: contain;
-    /* background-color: #ffd700;
-    padding: rem(15px) rem(30px);
-    border-radius: 100px;
-    color: #000000;
-    font-weight: 600;
-    font-size: rem(20px);
-    text-decoration: none; */
-    /* 
-    border: 2px solid #422800;
-    padding: rem(20px);
-    background-color: #fbeee0;
-    border-radius: rem(10px);
-    box-shadow: #422800 4px 4px 0 0;
-    color: #422800;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: rem(20px);
-    min-width: rem(200px); */
-
-    &:hover {
-      background-image: url('../../assets/images/Asset 6.webp');
-    }
-
-    &:active {
-      background-image: url('../../assets/images/Asset 7.webp');
-    }
-  }
-
-  @mixin smaller-than 768px {
-    h1 {
-      font-size: rem(50px);
-    }
-
-    h2 {
-      font-size: rem(24px);
-    }
   }
 }
 
@@ -120,6 +83,7 @@
   flex-direction: column;
   justify-content: center;
   text-align: center;
+  position: relative;
 
   p {
     margin-top: 0;
@@ -132,35 +96,31 @@
     width: 100%;
     gap: rem(20px);
     margin-bottom: rem(20px);
+  }
 
-    a {
-      //padding: rem(20px);
-      //min-width: rem(200px);
-      //border: 2px solid #422800;
-      //background-color: #fbeee0;
-      //border-radius: rem(10px);
-      //box-shadow: #422800 4px 4px 0 0;
-      //color: #422800;
-      //text-decoration: none;
-      //font-weight: 600;
+  .headingImg {
+    background-image: url('../../assets/images/heading.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 100px;
+    margin-top: -50px;
+    color: #4d2c00;
+    font-family: 'Charmonman', cursive, sans-serif;
+    font-size: rem(50px);
 
-      &:hover {
-        //background-color: #ffdbb5;
-      }
-
-      &:active {
-        //box-shadow: #422800 2px 2px 0 0;
-        //transform: translate(2px, 2px);
-      }
+    @media screen and (max-width: 520px) {
+      font-size: rem(30px);
+      padding: 100px 0;
+      margin-top: 0;
     }
   }
-}
 
-.admin {
-  position: absolute;
-  bottom: rem(10px);
-  left: 0;
-  display: flex;
-  justify-content: center;
-  width: 100%;
+  .text {
+    background-color: rgba(0, 0, 0, 0.4);
+    font-family: 'Charmonman', cursive, sans-serif;
+    h1 {
+      font-size: rem(30px);
+    }
+  }
 }
