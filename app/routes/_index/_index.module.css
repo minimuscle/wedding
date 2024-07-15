@@ -117,7 +117,12 @@
   }
 
   .text {
-    background-color: rgba(0, 0, 0, 0.4);
+    width: fit-content;
+    padding: rem(20px);
+    margin: 0 auto rem(50px);
+    border-radius: rem(12px);
+    background-color: rgba(0, 0, 0, 0.25);
+    color: #fff;
     font-family: 'Charmonman', cursive, sans-serif;
     h1 {
       font-size: rem(30px);

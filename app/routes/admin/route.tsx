@@ -1,184 +1,246 @@
-// import { ActionIcon, Button, Container, Menu, Modal, Space, Table, Text, Title, rem } from '@mantine/core'
-// import { useDisclosure } from '@mantine/hooks'
-// import type { MetaFunction } from '@remix-run/node'
-// import { initializeApp } from 'firebase/app'
-// import { getFirestore, collection, doc, setDoc } from 'firebase/firestore'
-// import { useCollection } from 'react-firebase-hooks/firestore'
-// import { BsPencil, BsThreeDotsVertical } from 'react-icons/bs'
-// import { PiTrash } from 'react-icons/pi'
-// import { ClientActionFunctionArgs, Link } from '@remix-run/react'
-// import UserForm, { UserFormProps } from './components/UserForm'
-// import { useState } from 'react'
-// import classes from './admin.module.css'
+import { getFirestore, collection, doc, getDocs, deleteDoc, setDoc } from 'firebase/firestore'
+import { ActionIcon, Card, Container, Group, Input, Menu, Space, Stack, Table } from '@mantine/core'
+import classes from './admin.module.css'
+import {
+  ClientActionFunctionArgs,
+  json,
+  MetaFunction,
+  useActionData,
+  useFetcher,
+  useLoaderData,
+} from '@remix-run/react'
+import Button from '~/components/Button'
+import { Button as MantineButton } from '@mantine/core'
+import back_image from '~/assets/images/buttons/BACK.webp'
+import back_image_hover from '~/assets/images/buttons/BACK_hover.webp'
+import back_image_active from '~/assets/images/buttons/BACK_active.webp'
+import { getApp, getApps, initializeApp } from 'firebase/app'
+import { BsPencil, BsThreeDotsVertical, BsTrash } from 'react-icons/bs'
+import UserModal from './UserModal'
+import { useDisclosure } from '@mantine/hooks'
+import { useState } from 'react'
+import { ModalType, People, User } from './types'
+import { v4 as uuid } from 'uuid'
 
-// const firebaseConfig = {
-//   apiKey: 'AIzaSyCd3ZaWnhr70icnECDRw6CbMkP4V9yiGTU',
-//   authDomain: 'wedding-38b49.firebaseapp.com',
-//   databaseURL: 'https://wedding-38b49-default-rtdb.asia-southeast1.firebasedatabase.app',
-//   projectId: 'wedding-38b49',
-//   storageBucket: 'wedding-38b49.appspot.com',
-//   messagingSenderId: '323230816869',
-//   appId: '1:323230816869:web:ef61a8d27b227512f8448c',
-//   measurementId: 'G-WC0LHCBKTM',
-// }
+const firebaseConfig = {
+  apiKey: 'AIzaSyCd3ZaWnhr70icnECDRw6CbMkP4V9yiGTU',
+  authDomain: 'wedding-38b49.firebaseapp.com',
+  databaseURL: 'https://wedding-38b49-default-rtdb.asia-southeast1.firebasedatabase.app',
+  projectId: 'wedding-38b49',
+  storageBucket: 'wedding-38b49.appspot.com',
+  messagingSenderId: '323230816869',
+  appId: '1:323230816869:web:ef61a8d27b227512f8448c',
+  measurementId: 'G-WC0LHCBKTM',
+}
 
-// export const meta: MetaFunction = () => {
-//   return [{ title: 'RSVP to Wedding' }, { name: 'description', content: 'RSVP To wedding' }]
-// }
+function initializeAppCheck() {
+  //check if firebase is already initialized and if it is, return it.
+  const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
+  return app
+}
 
-// export const clientAction = async ({ request }: ClientActionFunctionArgs) => {
-//   //remix clientAction
-//   const formData = await request.formData()
-//   const id = formData.get('id')
-//   const firstName = formData.get('firstName')
-//   const lastName = formData.get('lastName')
-//   const email = formData.get('email')
-//   const phone = formData.get('phone')
-//   const address = formData.get('address')
-//   const guests = formData.get('guests')
-//   const guestNames = formData.get('guestNames')
+function generateCode(codes: string[]) {
+  const code = Math.random().toString(36).substring(2, 6).toUpperCase()
+  if (codes.includes(code)) {
+    generateCode(codes)
+  } else {
+    return code
+  }
+}
 
-//   //Get intention
-//   const _intent = formData.get('_intent')
-//   //Validate the form
+export const meta: MetaFunction = () => {
+  return [{ title: 'Admin Centre' }, { name: 'description', content: 'Admin Centre' }]
+}
 
-//   //submit the form to the firestore
-//   const app = initializeApp(firebaseConfig)
-//   const db = getFirestore(app)
-//   if (_intent === 'add') {
-//     await setDoc(doc(db, 'users', id!.toString()), {
-//       first_name: firstName,
-//       last_name: lastName,
-//       email: email,
-//       phone: phone,
-//       address: address,
-//       rsvp: false,
-//       attending: false,
-//       guests: guests,
-//       guest_names: guestNames,
-//       expected_attending: 0,
-//       actual_attending: 0,
-//     })
-//   } else {
-//     await setDoc(doc(db, 'users', id!.toString()), {
-//       first_name: firstName,
-//       last_name: lastName,
-//       email: email,
-//       phone: phone,
-//       address: address,
-//       guests: guests,
-//       guest_names: guestNames,
-//     })
-//   }
-//   return null
-// }
+export async function clientLoader() {
+  //setup the firebase app first
+  const app = initializeAppCheck()
+  const db = getFirestore(app)
+  //get the collection of users
+  const userSnapshot = await getDocs(collection(db, 'users'))
 
-// export default function Admin() {
-//   const app = initializeApp(firebaseConfig)
-//   const [value, loading, error] = useCollection(collection(getFirestore(app), 'users'), {
-//     snapshotListenOptions: { includeMetadataChanges: true },
-//   })
-//   const [isNewUserOpen, { toggle: toggleNewUser }] = useDisclosure()
-//   const [isEditOpen, { toggle: toggleEditUser }] = useDisclosure()
-//   const [user, setUser] = useState<UserFormProps | null>(null)
+  //map the data to get the user data includeing the id
+  const users = userSnapshot.docs.map((doc) => {
+    return { ...doc.data(), id: doc.id }
+  }) as User[]
 
-//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//   const editUser = (id: string, userData: any) => {
-//     setUser({
-//       id: id,
-//       firstName: userData.first_name,
-//       lastName: userData.last_name,
-//       email: userData.email,
-//       phone: userData.phone,
-//       address: userData.address,
-//       guests: userData.guests,
-//       guestNames: userData.guest_names,
-//     })
-//     toggleEditUser()
-//   }
+  users.forEach(async (user) => {
+    const subCollection = await getDocs(collection(db, 'users', user.id, 'users'))
+    const users = subCollection.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as People[]
+    user.users = users
+  })
 
-//   return (
-//     <div className={classes.adminContainer}>
-//       <Container>
-//         <Link to='/'>Home</Link>
-//         <h1>Admin Panel</h1>
-//         <Title order={2}>RSVPs</Title>
-//         <Text>List of guests and their details</Text>
-//         <Space h='xl' />
-//         <Button onClick={() => toggleNewUser()}>Add User</Button>
-//         <Space h='xl' />
-//         {error && <strong>Error: {JSON.stringify(error)}</strong>}
-//         {loading && <span>Collection: Loading...</span>}
-//         {value && (
-//           // value.docs.map((doc) => (
-//           //   <Fragment key={doc.id}>{JSON.stringify(doc.data())}, </Fragment>
-//           // ))}
+  console.log(users)
+  return users
+}
 
-//           <>
-//             <Table striped withTableBorder stickyHeader highlightOnHover>
-//               <Table.Thead>
-//                 <Table.Tr>
-//                   <Table.Th>First Name</Table.Th>
-//                   <Table.Th>Last Name</Table.Th>
-//                   <Table.Th>RSVP</Table.Th>
-//                   <Table.Th>Attending</Table.Th>
-//                   <Table.Th>Guests</Table.Th>
-//                   <Table.Th>Guest Names</Table.Th>
-//                   <Table.Th>Expected Attending</Table.Th>
-//                   <Table.Th>Actual Attending</Table.Th>
-//                 </Table.Tr>
-//               </Table.Thead>
-//               <Table.Tbody>
-//                 {value.docs.map((doc) => (
-//                   <Table.Tr key={doc.id}>
-//                     <Table.Td>{doc.data().first_name}</Table.Td>
-//                     <Table.Td>{doc.data().last_name}</Table.Td>
-//                     <Table.Td>{doc.data().rsvp ? 'Yes' : 'No'}</Table.Td>
-//                     <Table.Td>{doc.data().rsvp ? (doc.data().attending ? 'Yes' : 'No') : '-'}</Table.Td>
-//                     <Table.Td>{doc.data().guests}</Table.Td>
-//                     <Table.Td>{doc.data().guests > 0 ? doc.data().guest_names : '-'}</Table.Td>
-//                     <Table.Td>{doc.data().expected_attending}</Table.Td>
-//                     <Table.Td>{doc.data().actual_attending}</Table.Td>
-//                     <Table.Td>
-//                       <Menu shadow='md' position='top' withArrow>
-//                         <Menu.Target>
-//                           <ActionIcon color='gray' variant='subtle'>
-//                             <BsThreeDotsVertical />
-//                           </ActionIcon>
-//                         </Menu.Target>
-//                         <Menu.Dropdown>
-//                           <Menu.Item onClick={() => editUser(doc.id, doc.data())} leftSection={<BsPencil />}>
-//                             Edit
-//                           </Menu.Item>
-//                           <Menu.Item color='red' leftSection={<PiTrash style={{ width: rem(16), height: rem(16) }} />}>
-//                             Delete User
-//                           </Menu.Item>
-//                         </Menu.Dropdown>
-//                       </Menu>
-//                     </Table.Td>
-//                   </Table.Tr>
-//                 ))}
-//               </Table.Tbody>
-//             </Table>
-//           </>
-//         )}
-//         <Modal opened={isEditOpen} onClose={toggleEditUser} size={'lg'} title='Add User'>
-//           <UserForm
-//             id={user?.id}
-//             firstName={user?.firstName}
-//             lastName={user?.lastName}
-//             phone={user?.phone}
-//             email={user?.email}
-//             address={user?.address}
-//             guests={user?.guests}
-//             guestNames={user?.guestNames}
-//             intent='edit'
-//           />
-//         </Modal>
-//         <Modal opened={isNewUserOpen} onClose={toggleNewUser} size={'lg'} title='Add User'>
-//           <UserForm />
-//         </Modal>
-//       </Container>
-//     </div>
-//   )
-// }
+export async function clientAction({ request }: ClientActionFunctionArgs) {
+  const formData = await request.formData()
+  const _intent = formData.get('_intent') as string
+  const app = initializeAppCheck()
+  const db = getFirestore(app)
+
+  if (_intent === 'delete') {
+    const id = formData.get('id') as string
+    //check if firebase is already initialized and if it is, use it
+    const userRef = doc(db, 'users', id)
+    await deleteDoc(userRef)
+  }
+
+  console.log(_intent)
+
+  if (_intent === 'save') {
+    //save the user data - if ID is present, update, else create
+    let id = formData.get('id') as string
+    const name = formData.get('name')
+    const phone = formData.get('phone')
+    const address = formData.get('address')
+    const expected = formData.get('expected')
+    const actual = formData.get('actual')
+    const guests = formData.get('guests')
+    let code = formData.get('code')
+
+    if (!id) id = uuid()
+    if (!code) {
+      console.log('No code')
+      const userSnapshot = await getDocs(collection(db, 'users'))
+      const codes = userSnapshot.docs.map((doc) => doc.data().code) as string[]
+      code = generateCode(codes) as string
+    }
+
+    await setDoc(doc(db, 'users', id), {
+      name,
+      phone,
+      address,
+      expected,
+      actual,
+      guests,
+      code,
+      rsvp: 'awaiting',
+    })
+  }
+
+  return null
+}
+
+export default function Admin() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const users = useLoaderData() as any[]
+  const fetcher = useFetcher()
+  const data = useActionData()
+  //useDisclosure
+  const [opened, { open, close }] = useDisclosure(false)
+  const [type, setType] = useState<ModalType>('edit')
+  const [selectedUser, setSelectedUser] = useState<User | undefined>()
+  const [access, setAccess] = useState<boolean>(false)
+  const [password, setPassword] = useState<string>('')
+
+  return (
+    <div className={classes.container}>
+      <UserModal opened={opened} type={type} close={close} user={selectedUser} />
+      <Button href='/' image={back_image} hover={back_image_hover} active={back_image_active} width='150px' />
+      <Container size={'lg'} className={classes.content}>
+        <h1>Admin Centre</h1>
+        <Card shadow='xs' padding='xl'>
+          {access ? (
+            <>
+              <Table striped withTableBorder stickyHeader highlightOnHover>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Name</Table.Th>
+                    <Table.Th>RSVP</Table.Th>
+                    <Table.Th>Expected</Table.Th>
+                    <Table.Th>Actual</Table.Th>
+                    <Table.Th>Guests</Table.Th>
+                    <Table.Th>Code</Table.Th>
+                    <Table.Th>Actions</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {users.map((user) => {
+                    return (
+                      <Table.Tr key={user.id}>
+                        <Table.Td
+                          className={classes.name}
+                          onClick={() => {
+                            setType('view')
+                            setSelectedUser(user)
+                            open()
+                          }}>
+                          {user.name}
+                        </Table.Td>
+                        <Table.Td>
+                          <div
+                            className={`${classes.pill} ${
+                              user.rsvp === 'true'
+                                ? classes.positive
+                                : user.rsvp === 'false'
+                                ? classes.negative
+                                : classes.awaiting
+                            }`}>
+                            {user.rsvp === 'true' ? 'Yes' : user.rsvp === 'false' ? 'No' : 'Awaiting'}
+                          </div>
+                        </Table.Td>
+                        <Table.Td>{user.expected_attending}</Table.Td>
+                        <Table.Td>{user.actual_attending}</Table.Td>
+                        <Table.Td>{user.guests}</Table.Td>
+                        <Table.Td>
+                          <div className={`${classes.pill}`}>{user.code}</div>
+                        </Table.Td>
+                        <Table.Td className={classes.actions}>
+                          <Menu shadow='md' position='top' withArrow>
+                            <Menu.Target>
+                              <ActionIcon color='gray' variant='subtle'>
+                                <BsThreeDotsVertical />
+                              </ActionIcon>
+                            </Menu.Target>
+                            <Menu.Dropdown>
+                              <Menu.Item leftSection={<BsPencil />}>Edit</Menu.Item>
+                              <Menu.Item
+                                color='red'
+                                leftSection={<BsTrash />}
+                                onClick={() => fetcher.submit({ _intent: 'delete', id: user.id }, { method: 'POST' })}>
+                                Delete
+                              </Menu.Item>
+                            </Menu.Dropdown>
+                          </Menu>
+                        </Table.Td>
+                      </Table.Tr>
+                    )
+                  })}
+                </Table.Tbody>
+              </Table>
+              <Space h='lg' />
+              <MantineButton
+                w={200}
+                size='compact-sm'
+                onClick={() => {
+                  setType('add')
+                  setSelectedUser(undefined)
+                  open()
+                }}>
+                Add User
+              </MantineButton>
+            </>
+          ) : (
+            <Stack>
+              <Input.Wrapper label='Enter Password to access'>
+                <Input
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  name='password'
+                  type='password'
+                  placeholder='Password'
+                  onKeyDown={(e) => e.key === 'Enter' && password === 'beanjuice' && setAccess(true)}
+                />
+              </Input.Wrapper>
+              <MantineButton type='submit' onClick={() => password === 'beanjuice' && setAccess(true)}>
+                Submit
+              </MantineButton>
+            </Stack>
+          )}
+        </Card>
+      </Container>
+    </div>
+  )
+}

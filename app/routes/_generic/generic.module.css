@@ -19,10 +19,13 @@
 .container {
   background-color: #fff9ed;
   padding: rem(20px);
-  min-height: 100vh; /** Sets the background colour to be at least the height of the viewport */
+  min-height: 100vh;
+  /** Sets the background colour to be at least the height of the viewport */
+  position: relative;
+
   background-image: url('../../assets/images/background.png');
   background-size: cover;
-  background-position: top 50% right;
+  background-position: top;
   background-repeat: no-repeat;
 }
 
