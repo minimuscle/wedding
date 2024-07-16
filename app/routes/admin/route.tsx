@@ -1,4 +1,4 @@
-import { getFirestore, collection, doc, getDocs, deleteDoc, setDoc } from 'firebase/firestore'
+import { getFirestore, collection, doc, getDocs, deleteDoc, setDoc, getDoc } from 'firebase/firestore'
 import { ActionIcon, Card, Container, Group, Input, Menu, Space, Stack, Table } from '@mantine/core'
 import classes from './admin.module.css'
 import {
@@ -21,6 +21,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { useState } from 'react'
 import { ModalType, People, User } from './types'
 import { v4 as uuid } from 'uuid'
+import { saveUser } from './action'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCd3ZaWnhr70icnECDRw6CbMkP4V9yiGTU',
@@ -33,19 +34,10 @@ const firebaseConfig = {
   measurementId: 'G-WC0LHCBKTM',
 }
 
-function initializeAppCheck() {
+export function initializeAppCheck() {
   //check if firebase is already initialized and if it is, return it.
   const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
   return app
-}
-
-function generateCode(codes: string[]) {
-  const code = Math.random().toString(36).substring(2, 6).toUpperCase()
-  if (codes.includes(code)) {
-    generateCode(codes)
-  } else {
-    return code
-  }
 }
 
 export const meta: MetaFunction = () => {
@@ -53,6 +45,7 @@ export const meta: MetaFunction = () => {
 }
 
 export async function clientLoader() {
+  console.log('LOAD HAS BEEN CALLED')
   //setup the firebase app first
   const app = initializeAppCheck()
   const db = getFirestore(app)
@@ -87,37 +80,28 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
     await deleteDoc(userRef)
   }
 
-  console.log(_intent)
+  console.log('intent:', _intent)
 
   if (_intent === 'save') {
-    //save the user data - if ID is present, update, else create
-    let id = formData.get('id') as string
-    const name = formData.get('name')
-    const phone = formData.get('phone')
-    const address = formData.get('address')
-    const expected = formData.get('expected')
-    const actual = formData.get('actual')
-    const guests = formData.get('guests')
-    let code = formData.get('code')
+    await saveUser(formData, db)
+  }
 
-    if (!id) id = uuid()
-    if (!code) {
-      console.log('No code')
-      const userSnapshot = await getDocs(collection(db, 'users'))
-      const codes = userSnapshot.docs.map((doc) => doc.data().code) as string[]
-      code = generateCode(codes) as string
-    }
+  if (_intent === 'addPerson') {
+    const id = formData.get('id') as string
+    const firstName = formData.get('firstName')
+    const lastName = formData.get('lastName')
+    const attending = formData.get('attending')
 
-    await setDoc(doc(db, 'users', id), {
-      name,
-      phone,
-      address,
-      expected,
-      actual,
-      guests,
-      code,
-      rsvp: 'awaiting',
+    await setDoc(doc(db, 'users', id, 'users', uuid()), {
+      firstName,
+      lastName,
+      attending,
     })
+
+    //return the user to the client
+    const userRef = await getDoc(doc(db, 'users', id))
+    console.log('userRef:', userRef.data())
+    return json(userRef.data())
   }
 
   return null
@@ -181,8 +165,8 @@ export default function Admin() {
                             {user.rsvp === 'true' ? 'Yes' : user.rsvp === 'false' ? 'No' : 'Awaiting'}
                           </div>
                         </Table.Td>
-                        <Table.Td>{user.expected_attending}</Table.Td>
-                        <Table.Td>{user.actual_attending}</Table.Td>
+                        <Table.Td>{user.expected}</Table.Td>
+                        <Table.Td>{user.actual}</Table.Td>
                         <Table.Td>{user.guests}</Table.Td>
                         <Table.Td>
                           <div className={`${classes.pill}`}>{user.code}</div>

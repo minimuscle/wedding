@@ -1,11 +1,13 @@
 export interface User {
   name: string
   rsvp: "true" | "false" | "awaiting"
-  expected_attending: number
-  actual_attending: number
+  expected: number
+  actual: number
   guests: number
   code: string
   id: string
+  phone?: string
+  address?: string
   users?: People[]
 }
 
