@@ -179,7 +179,15 @@ export default function Admin() {
                               </ActionIcon>
                             </Menu.Target>
                             <Menu.Dropdown>
-                              <Menu.Item leftSection={<BsPencil />}>Edit</Menu.Item>
+                              <Menu.Item
+                                leftSection={<BsPencil />}
+                                onClick={() => {
+                                  setType('edit')
+                                  setSelectedUser(user)
+                                  open()
+                                }}>
+                                Edit
+                              </Menu.Item>
                               <Menu.Item
                                 color='red'
                                 leftSection={<BsTrash />}

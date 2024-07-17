@@ -56,7 +56,7 @@ export default function UserModal({ opened, close, type, user }: ModalProps) {
             <NumberInput required min={0} disabled={type === 'view'} name='guests' defaultValue={user?.guests || 0} />
           </Input.Wrapper>
         </Group>
-        {type === 'view' && (
+        {type !== 'add' && (
           <>
             <h3>People</h3>
             <Table striped withTableBorder stickyHeader highlightOnHover>
@@ -121,6 +121,7 @@ export default function UserModal({ opened, close, type, user }: ModalProps) {
             </Table>
 
             <Button
+              lightHidden={type === 'view'}
               onClick={() => {
                 setNewUserAdding(true)
               }}
