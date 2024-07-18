@@ -50,7 +50,7 @@ export default function UserModal({ opened, close, type, user }: ModalProps) {
             <NumberInput required min={0} disabled={type === 'view'} name='expected' defaultValue={user?.expected} />
           </Input.Wrapper>
           <Input.Wrapper label='Actual Attending'>
-            <NumberInput required min={0} disabled={type === 'view'} name='actual' defaultValue={user?.actual} />
+            <NumberInput required min={0} disabled name='actual' defaultValue={user?.actual} />
           </Input.Wrapper>
           <Input.Wrapper label='Guests Allowed'>
             <NumberInput required min={0} disabled={type === 'view'} name='guests' defaultValue={user?.guests || 0} />

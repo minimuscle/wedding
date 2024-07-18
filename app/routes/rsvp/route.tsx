@@ -1,12 +1,22 @@
 import type { MetaFunction } from '@remix-run/node'
 import classes from './rsvp.module.css'
-import { ClientActionFunctionArgs, Link, redirect, useFetcher, useLocation } from '@remix-run/react'
+import {
+  ClientActionFunctionArgs,
+  ClientLoaderFunctionArgs,
+  Form,
+  json,
+  Link,
+  redirect,
+  useFetcher,
+  useLoaderData,
+  useLocation,
+} from '@remix-run/react'
 import { Button, Checkbox, Container, Input, Space, Switch, Table } from '@mantine/core'
 import headingImg from '~/assets/images/heading.png'
 import { collection, getDocs, getFirestore, query, where } from 'firebase/firestore'
 import { initializeAppCheck } from '../admin/route'
 import { People, User } from '../admin/types'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export const meta: MetaFunction = () => {
   return [{ title: `RSVP | Josh & Nathan's Wedding` }, { name: 'description', content: 'Our High Fantasy Wedding' }]
@@ -15,36 +25,46 @@ export const meta: MetaFunction = () => {
 export const clientAction = async ({ request }: ClientActionFunctionArgs) => {
   const formData = await request.formData()
   const _intent = formData.get('_intent')
+  console.log('intent:', _intent)
 
   const app = initializeAppCheck()
   const db = getFirestore(app)
 
-  if (_intent === 'login') {
-    const code = formData.get('code')
-    //get code from the firestore
+  if (_intent === 'rsvp') {
+    //update the attending list.
+    const id = formData.get('id')
+    const rsvp = formData.get('rsvp')
+
+    return json({ success: true })
+  }
+}
+
+export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
+  const url = new URL(request.url)
+  const code = url.searchParams.get('code')
+  console.log('CODE:', code)
+
+  const app = initializeAppCheck()
+  const db = getFirestore(app)
+
+  if (code) {
     const usersRef = collection(db, 'users')
     const q = query(usersRef, where('code', '==', code))
     const querySnapshot = await getDocs(q)
     const data = querySnapshot.docs[0].data()
     data.id = querySnapshot.docs[0].id
 
-    console.log(data)
-
     //get subcollection of users
     const subCollection = await getDocs(collection(db, 'users', querySnapshot.docs[0].id, 'users'))
     const users = subCollection.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
 
-    console.log(users)
-
     return { data, users }
   }
 
-  if (_intent === 'rsvp') {
-    //update the attending list.
-    const id = formData.get('id')
-    const rsvp = formData.get('rsvp')
-    return redirect('/')
-  }
+  const success = url.searchParams.get('success')
+  if (success) return { success: true }
+
+  return null
 }
 
 interface RsvpProps {
@@ -52,10 +72,14 @@ interface RsvpProps {
   users: People[]
 }
 
+type RsvpFetcher = RsvpProps | { success: boolean }
+
 export default function Rsvp() {
   const location = useLocation()
-  const fetcher = useFetcher<RsvpProps>()
+  const data = useLoaderData<RsvpProps>()
+  const fetcher = useFetcher<RsvpFetcher>()
   const formRef = useRef<HTMLFormElement>(null)
+  const [form, setForm] = useState('code')
 
   //make the pathname the heading by capitalzing the first letter of each word and replacing the hyphen with a space
   const heading = location.pathname
@@ -90,19 +114,27 @@ export default function Rsvp() {
     fetcher.submit(form, { method: 'POST' })
   }
 
-  return (
-    <div className={classes.container}>
-      <div className={classes.header}>
-        <div className={classes.overlay}>
-          <Link to='/'>Home</Link>
-          <img src={headingImg} alt='Heading' />
-          <h1>{heading}</h1>
-        </div>
-      </div>
-      <Container size={'lg'} className={classes.content}>
-        {fetcher.data ? (
-          <fetcher.Form ref={formRef} onSubmit={(e) => submitForm(e)}>
-            <h1>{fetcher.data.data.name} RSVP</h1>
+  useEffect(() => {
+    //If no loader data, show only the code form
+    if (!data?.data) setForm('code')
+    else if (data?.data && !fetcher?.data) setForm('form')
+    else if (fetcher?.data?.success) setForm('success')
+  }, [data.data, fetcher.data])
+
+  function showForm() {
+    console.log('FORM:', form)
+    switch (form) {
+      case 'success':
+        return (
+          <>
+            <h1>Thank you for RSVPing</h1>
+            <p>We appreciate it greatly!</p>
+          </>
+        )
+      case 'form':
+        return (
+          <Form method='POST' ref={formRef} onSubmit={(e) => submitForm(e)}>
+            <h1>{data?.data.name} RSVP</h1>
             <h4>Will the group be attending?</h4>
             <Switch
               className={classes.checkbox}
@@ -110,7 +142,7 @@ export default function Rsvp() {
               size='xl'
               onLabel='Yes'
               offLabel='No'
-              defaultChecked={fetcher.data.data.rsvp === 'true'}>
+              defaultChecked={data.data.rsvp === 'true'}>
               Attending
             </Switch>
             <Table>
@@ -122,7 +154,7 @@ export default function Rsvp() {
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {fetcher.data.users?.map((person) => (
+                {data.users?.map((person) => (
                   <Table.Tr key={person.id}>
                     <Table.Td>{person.firstName}</Table.Td>
                     <Table.Td>{person.lastName}</Table.Td>
@@ -138,10 +170,12 @@ export default function Rsvp() {
             <Button fullWidth type='submit'>
               Save
             </Button>
-          </fetcher.Form>
-        ) : (
-          <fetcher.Form method='POST' className={classes.codesection}>
-            <input type='hidden' name='_intent' value='login' />
+          </Form>
+        )
+      case 'code':
+      default:
+        return (
+          <Form className={classes.codesection}>
             <label htmlFor='code'>Code:</label>
             <p>You will have received this with your invitation</p>
             <Input className={classes.input} id='code' name='code' required />
@@ -149,8 +183,22 @@ export default function Rsvp() {
             <Button fullWidth type='submit'>
               Submit
             </Button>
-          </fetcher.Form>
-        )}
+          </Form>
+        )
+    }
+  }
+
+  return (
+    <div className={classes.container}>
+      <div className={classes.header}>
+        <div className={classes.overlay}>
+          <Link to='/'>Home</Link>
+          <img src={headingImg} alt='Heading' />
+          <h1>{heading}</h1>
+        </div>
+      </div>
+      <Container size={'lg'} className={classes.content}>
+        {showForm()}
       </Container>
     </div>
   )
