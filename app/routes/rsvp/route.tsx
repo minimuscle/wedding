@@ -1,204 +1,96 @@
-import type { MetaFunction } from '@remix-run/node'
+import { Container } from '@mantine/core'
 import classes from './rsvp.module.css'
-import {
-  ClientActionFunctionArgs,
-  ClientLoaderFunctionArgs,
-  Form,
-  json,
-  Link,
-  redirect,
-  useFetcher,
-  useLoaderData,
-  useLocation,
-} from '@remix-run/react'
-import { Button, Checkbox, Container, Input, Space, Switch, Table } from '@mantine/core'
-import headingImg from '~/assets/images/heading.png'
-import { collection, getDocs, getFirestore, query, where } from 'firebase/firestore'
+import Button from '~/components/Button'
+import back_image from '~/assets/images/buttons/BACK.webp'
+import back_image_hover from '~/assets/images/buttons/BACK_hover.webp'
+import back_image_active from '~/assets/images/buttons/BACK_active.webp'
+import { ClientActionFunctionArgs, ClientLoaderFunctionArgs, MetaFunction, useLoaderData } from '@remix-run/react'
 import { initializeAppCheck } from '../admin/route'
+import { collection, doc, getDocs, getFirestore, query, updateDoc, where } from 'firebase/firestore'
+import CodeInput from './components/CodeInput'
 import { People, User } from '../admin/types'
-import { useEffect, useRef, useState } from 'react'
+import RsvpForm from './components/RsvpForm'
+
+export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
+  const url = new URL(request.url)
+  const code = url.searchParams.get('code')
+
+  if (code) {
+    //check if code is valid before returning the data
+    const app = initializeAppCheck()
+    const db = getFirestore(app)
+
+    const usersRef = collection(db, 'users')
+    const q = query(usersRef, where('code', '==', code))
+    const querySnapshot = await getDocs(q)
+
+    if (querySnapshot.empty) {
+      return { message: 'Invalid Code', status: 404 }
+    } else {
+      const data = querySnapshot.docs[0].data() as User
+      data.id = querySnapshot.docs[0].id
+
+      //get subcollection of users
+      const subCollection = await getDocs(collection(db, 'users', querySnapshot.docs[0].id, 'users'))
+      data.users = subCollection.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as People[]
+
+      return { data, status: 200 }
+    }
+  }
+  return null
+}
+
+export async function clientAction({ request }: ClientActionFunctionArgs) {
+  const formData = await request.formData()
+  const fields: Record<string, string> = {}
+  for (const pair of formData.entries()) {
+    fields[pair[0]] = pair[1] as string
+  }
+  //if there is more fields than just id, then update rsvp to yes
+  let rsvp = 'false'
+  if (Object.keys(fields).length > 1) rsvp = 'true'
+
+  const app = initializeAppCheck()
+  const db = getFirestore(app)
+
+  const groupRef = doc(db, 'users', fields.id)
+  await updateDoc(groupRef, {
+    rsvp: rsvp,
+    actual: Object.keys(fields).length - 1,
+  })
+
+  //for each item thats not 'id', update the user subcollection
+  for (const key in fields) {
+    if (key !== 'id') {
+      const userRef = doc(db, 'users', fields.id, 'users', key)
+      await updateDoc(userRef, {
+        attending: 'true',
+      })
+    }
+  }
+
+  return null
+}
 
 export const meta: MetaFunction = () => {
   return [{ title: `RSVP | Josh & Nathan's Wedding` }, { name: 'description', content: 'Our High Fantasy Wedding' }]
 }
 
-export const clientAction = async ({ request }: ClientActionFunctionArgs) => {
-  const formData = await request.formData()
-  const _intent = formData.get('_intent')
-  console.log('intent:', _intent)
-
-  const app = initializeAppCheck()
-  const db = getFirestore(app)
-
-  if (_intent === 'rsvp') {
-    //update the attending list.
-    const id = formData.get('id')
-    const rsvp = formData.get('rsvp')
-
-    return json({ success: true })
-  }
+interface LoaderDataProps {
+  message?: string
+  data?: User
+  status?: number
 }
-
-export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
-  const url = new URL(request.url)
-  const code = url.searchParams.get('code')
-  console.log('CODE:', code)
-
-  const app = initializeAppCheck()
-  const db = getFirestore(app)
-
-  if (code) {
-    const usersRef = collection(db, 'users')
-    const q = query(usersRef, where('code', '==', code))
-    const querySnapshot = await getDocs(q)
-    const data = querySnapshot.docs[0].data()
-    data.id = querySnapshot.docs[0].id
-
-    //get subcollection of users
-    const subCollection = await getDocs(collection(db, 'users', querySnapshot.docs[0].id, 'users'))
-    const users = subCollection.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
-
-    return { data, users }
-  }
-
-  const success = url.searchParams.get('success')
-  if (success) return { success: true }
-
-  return null
-}
-
-interface RsvpProps {
-  data: User
-  users: People[]
-}
-
-type RsvpFetcher = RsvpProps | { success: boolean }
 
 export default function Rsvp() {
-  const location = useLocation()
-  const data = useLoaderData<RsvpProps>()
-  const fetcher = useFetcher<RsvpFetcher>()
-  const formRef = useRef<HTMLFormElement>(null)
-  const [form, setForm] = useState('code')
-
-  //make the pathname the heading by capitalzing the first letter of each word and replacing the hyphen with a space
-  const heading = location.pathname
-    .replace(/\//g, '')
-    .replace(/-/g, ' ')
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-
-  function submitForm(e: any) {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const rsvp = formData.get('rsvp')
-
-    //count number of 'on's' in the users form for the actual
-    let actual = 0
-    const users = []
-
-    for (const pair of formData.entries()) {
-      if (pair[0].includes('_checked') && pair[1] === 'on') {
-        actual++
-        users.push({ id: pair[0].replace('_checked', ''), attending: pair[1] === 'on' ? 'true' : 'false' })
-      }
-    }
-    const form = {
-      _intent: 'rsvp',
-      id: fetcher.data!.data.id,
-      rsvp: rsvp === 'on' ? 'true' : 'false',
-      actual,
-      users,
-    }
-    fetcher.submit(form, { method: 'POST' })
-  }
-
-  useEffect(() => {
-    //If no loader data, show only the code form
-    if (!data?.data) setForm('code')
-    else if (data?.data && !fetcher?.data) setForm('form')
-    else if (fetcher?.data?.success) setForm('success')
-  }, [data.data, fetcher.data])
-
-  function showForm() {
-    console.log('FORM:', form)
-    switch (form) {
-      case 'success':
-        return (
-          <>
-            <h1>Thank you for RSVPing</h1>
-            <p>We appreciate it greatly!</p>
-          </>
-        )
-      case 'form':
-        return (
-          <Form method='POST' ref={formRef} onSubmit={(e) => submitForm(e)}>
-            <h1>{data?.data.name} RSVP</h1>
-            <h4>Will the group be attending?</h4>
-            <Switch
-              className={classes.checkbox}
-              name='rsvp'
-              size='xl'
-              onLabel='Yes'
-              offLabel='No'
-              defaultChecked={data.data.rsvp === 'true'}>
-              Attending
-            </Switch>
-            <Table>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>First Name</Table.Th>
-                  <Table.Th>Last Name</Table.Th>
-                  <Table.Th>Attending</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {data.users?.map((person) => (
-                  <Table.Tr key={person.id}>
-                    <Table.Td>{person.firstName}</Table.Td>
-                    <Table.Td>{person.lastName}</Table.Td>
-                    <Table.Td>
-                      <Checkbox name={`${person.id}_checked`} defaultChecked={String(person.attending) === 'true'} />
-                    </Table.Td>
-                  </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
-            <input type='hidden' name='_intent' value='rsvp' />
-            <Space h={20} />
-            <Button fullWidth type='submit'>
-              Save
-            </Button>
-          </Form>
-        )
-      case 'code':
-      default:
-        return (
-          <Form className={classes.codesection}>
-            <label htmlFor='code'>Code:</label>
-            <p>You will have received this with your invitation</p>
-            <Input className={classes.input} id='code' name='code' required />
-            <Space h={10} />
-            <Button fullWidth type='submit'>
-              Submit
-            </Button>
-          </Form>
-        )
-    }
-  }
-
+  const loaderData = useLoaderData<LoaderDataProps>()
   return (
     <div className={classes.container}>
-      <div className={classes.header}>
-        <div className={classes.overlay}>
-          <Link to='/'>Home</Link>
-          <img src={headingImg} alt='Heading' />
-          <h1>{heading}</h1>
-        </div>
-      </div>
+      <Button href='/' image={back_image} hover={back_image_hover} active={back_image_active} width='150px' />
+      <h1 className={classes.headingImg}>RSVP</h1>
       <Container size={'lg'} className={classes.content}>
-        {showForm()}
+        {loaderData?.status !== 200 && <CodeInput />}
+        {loaderData?.data && <RsvpForm />}
       </Container>
     </div>
   )

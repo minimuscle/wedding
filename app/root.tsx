@@ -1,6 +1,6 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react'
 import '@mantine/core/styles.css'
-import { MantineProvider, createTheme } from '@mantine/core'
+import { MantineProvider } from '@mantine/core'
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -20,13 +20,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
   )
 }
 
-const theme = createTheme({
-  /** Put your mantine theme override here */
-})
-
 export default function App() {
   return (
-    <MantineProvider theme={theme}>
+    <MantineProvider>
       <Outlet />
     </MantineProvider>
   )

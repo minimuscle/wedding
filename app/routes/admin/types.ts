@@ -14,7 +14,7 @@ export interface User {
 export interface People {
   firstName: string
   lastName: string
-  attending: boolean
+  attending: string
   id: string
 }
 
