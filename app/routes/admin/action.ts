@@ -10,6 +10,7 @@ export async function saveUser(formData: FormData, db: Firestore) {
     const actual = formData.get('actual')
     const guests = formData.get('guests')
     let code = formData.get('code')
+    const rsvp = formData.get('rsvp')
 
     if (!code) {
       const userSnapshot = await getDocs(collection(db, 'users'))
@@ -25,7 +26,10 @@ export async function saveUser(formData: FormData, db: Firestore) {
       actual,
       guests,
       code,
-      rsvp: 'awaiting',
+      rsvp: rsvp || 'awaiting',
+    }, {
+      merge: true
+    
     })
 }
 

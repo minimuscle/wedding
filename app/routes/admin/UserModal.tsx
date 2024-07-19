@@ -132,6 +132,7 @@ export default function UserModal({ opened, close, type, user }: ModalProps) {
         )}
         <input type='hidden' name='_intent' value='save' />
         <input type='hidden' name='id' value={id} />
+        <input type='hidden' name='rsvp' value={user?.rsvp} />
         <input type='hidden' name='code' value={user?.code} />
         <Button disabled={type === 'view'} type='submit'>
           Save

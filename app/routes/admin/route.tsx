@@ -45,7 +45,6 @@ export const meta: MetaFunction = () => {
 }
 
 export async function clientLoader() {
-  console.log('LOAD HAS BEEN CALLED')
   //setup the firebase app first
   const app = initializeAppCheck()
   const db = getFirestore(app)
@@ -63,8 +62,14 @@ export async function clientLoader() {
     user.users = users
   })
 
-  console.log(users)
-  return users
+  //get total number of expected and actual users
+  const total = {
+    expected: users.reduce((acc, user) => acc + parseInt(user.expected), 0),
+    actual: users.reduce((acc, user) => acc + (parseInt(user.actual) || 0), 0),
+    rsvp: users.reduce((acc, user) => acc + (user.rsvp !== 'awaiting' ? 1 : 0), 0),
+  }
+
+  return { users, total }
 }
 
 export async function clientAction({ request }: ClientActionFunctionArgs) {
@@ -109,7 +114,8 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
 
 export default function Admin() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const users = useLoaderData() as any[]
+  const loaderData = useLoaderData()
+  console.log(loaderData?.total)
   const fetcher = useFetcher()
   const data = useActionData()
   //useDisclosure
@@ -141,7 +147,7 @@ export default function Admin() {
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                  {users.map((user) => {
+                  {loaderData?.users.map((user) => {
                     return (
                       <Table.Tr key={user.id}>
                         <Table.Td
@@ -200,6 +206,24 @@ export default function Admin() {
                       </Table.Tr>
                     )
                   })}
+                  <Table.Tr className={classes.totals}>
+                    <Table.Td>Total</Table.Td>
+                    <Table.Td>RSVPs Remaining</Table.Td>
+                    <Table.Td>Total Expected</Table.Td>
+                    <Table.Td>Total Actual</Table.Td>
+                    <Table.Td></Table.Td>
+                    <Table.Td></Table.Td>
+                    <Table.Td></Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Td></Table.Td>
+                    <Table.Td>{Object.keys(loaderData?.users).length - loaderData?.total.rsvp}</Table.Td>
+                    <Table.Td>{loaderData?.total.expected}</Table.Td>
+                    <Table.Td>{loaderData?.total.actual}</Table.Td>
+                    <Table.Td></Table.Td>
+                    <Table.Td></Table.Td>
+                    <Table.Td></Table.Td>
+                  </Table.Tr>
                 </Table.Tbody>
               </Table>
               <Space h='lg' />
