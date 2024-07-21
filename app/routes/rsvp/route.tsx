@@ -4,6 +4,9 @@ import Button from "~/components/Button"
 import back_image from "~/assets/images/buttons/BACK.webp"
 import back_image_hover from "~/assets/images/buttons/BACK_hover.webp"
 import back_image_active from "~/assets/images/buttons/BACK_active.webp"
+import home_image from "~/assets/images/buttons/HOME.webp"
+import home_image_hover from "~/assets/images/buttons/HOME_hover.webp"
+import home_image_active from "~/assets/images/buttons/HOME_active.webp"
 import {
   ClientActionFunctionArgs,
   ClientLoaderFunctionArgs,
@@ -13,11 +16,9 @@ import {
 import { initializeAppCheck } from "../admin/route"
 import {
   collection,
-  doc,
   getDocs,
   getFirestore,
   query,
-  updateDoc,
   where,
 } from "firebase/firestore"
 import CodeInput from "./components/CodeInput"
@@ -28,7 +29,12 @@ import { addGuest, removeGuest, save } from "./action"
 
 export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
   const url = new URL(request.url)
+  const success = url.searchParams.get("success")
   const code = url.searchParams.get("code")
+
+  if (success) {
+    return { message: "RSVP Saved", status: 201 }
+  }
 
   if (code) {
     //check if code is valid before returning the data
@@ -108,9 +114,24 @@ export default function Rsvp() {
       />
       <h1 className={classes.headingImg}>RSVP</h1>
       <Container size={"lg"} className={classes.content}>
-        {loaderData?.status !== 200 && <CodeInput />}
+        {loaderData?.status !== 200 && loaderData.status !== 201 && (
+          <CodeInput />
+        )}
         {loaderData?.data && <RsvpForm />}
         {loaderData?.data && loaderData?.data.guests > 0 && <GuestForm />}
+        {loaderData?.status == 201 && (
+          <>
+            <h1>Thank you for RSVPing</h1>
+            <p>We hope to see you there!</p>
+            <Button
+              href="/"
+              image={home_image}
+              hover={home_image_hover}
+              active={home_image_active}
+              width="250px"
+            />
+          </>
+        )}
       </Container>
     </div>
   )

@@ -89,6 +89,7 @@ export default function GuestForm() {
           </Button>
         )}
       </Card>
+      <input type="hidden" name="actual" value={user.actual} />
       <input type="hidden" name="_intent" value={intent} />
       <input type="hidden" name="id" value={user.id} />
     </fetcher.Form>

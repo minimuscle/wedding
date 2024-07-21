@@ -1,4 +1,10 @@
-import { doc, updateDoc, type Firestore } from "firebase/firestore"
+import {
+  collection,
+  doc,
+  getDocs,
+  updateDoc,
+  type Firestore,
+} from "firebase/firestore"
 
 export async function save(formData: FormData, db: Firestore) {
   const fields: Record<string, string> = {}
@@ -7,25 +13,30 @@ export async function save(formData: FormData, db: Firestore) {
   }
   //if there is more fields than just id, then update rsvp to yes
   let rsvp = "false"
-  if (Object.keys(fields).length > 1) rsvp = "true"
-
-  
+  if (Object.keys(fields).length > 2) rsvp = "true"
 
   const groupRef = doc(db, "users", fields.id)
   await updateDoc(groupRef, {
     rsvp: rsvp,
-    actual: Object.keys(fields).length - 1,
+    actual: Object.keys(fields).length - 2,
   })
 
-  //for each item thats not 'id', update the user subcollection
-  for (const key in fields) {
-    if (key !== "id") {
-      const userRef = doc(db, "users", fields.id, "users", key)
-      await updateDoc(userRef, {
-        attending: "true",
-      })
-    }
-  }
+  const subCollection = await getDocs(
+    collection(db, "users", fields.id, "users")
+  )
+  const users = subCollection.docs.map((doc) => ({
+    ...doc.data(),
+    id: doc.id,
+  }))
+
+  users.forEach(async (user) => {
+    //set each user to attending if they are in the form data or false if not
+    const attending = fields[user.id] === "on" ? "true" : "false"
+    const userRef = doc(db, "users", fields.id, "users", user.id)
+    await updateDoc(userRef, {
+      attending: attending,
+    })
+  })
 
   return null
 }
@@ -34,11 +45,13 @@ export async function addGuest(formData: FormData, db: Firestore) {
   const guestNames = formData.getAll("guest")
   const id = formData.get("id") as string
   const selectedAddGuest = formData.get("selectedAddGuest") as string
- 
+  const actual = formData.get("actual") as string
+
   //add the selected guest to the guestNames array
   guestNames.push(selectedAddGuest)
   await updateDoc(doc(db, "users", id), {
     guestNames: guestNames,
+    actual: parseInt(actual) + 1,
   })
 
   return null
@@ -48,15 +61,13 @@ export async function removeGuest(formData: FormData, db: Firestore) {
   const guestNames = formData.getAll("guest")
   const id = formData.get("id") as string
   const selectedGuest = formData.get("selectedGuest") as string
-  console.log(guestNames)
-  console.info(id)
-  console.info(selectedGuest)
   //set the guest names to remove the selected guest
   const newGuestNames = guestNames.filter((guest) => guest !== selectedGuest)
-  console.log(newGuestNames)
+  const actual = formData.get("actual") as string
 
   await updateDoc(doc(db, "users", id), {
     guestNames: newGuestNames,
+    actual: parseInt(actual) - 1,
   })
 
   return null

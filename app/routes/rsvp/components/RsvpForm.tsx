@@ -1,13 +1,18 @@
 import { Button, Card, Checkbox, Table } from "@mantine/core"
-import { Form, useLoaderData } from "@remix-run/react"
+import { Form, useLoaderData, useNavigate } from "@remix-run/react"
 import classes from "../rsvp.module.css"
 import { User } from "~/utils/types"
 import { People } from "~/utils/types"
 
 export default function RsvpForm() {
   const { data: user } = useLoaderData<{ data: User }>()
+  const navigate = useNavigate()
   return (
-    <Form method="POST" className={classes.RsvpForm}>
+    <Form
+      method="POST"
+      className={classes.RsvpForm}
+      onSubmitCapture={() => navigate({ search: "?success=true" })}
+    >
       <h1>RSVP for {user.name}</h1>
       <p>Who will be attending?</p>
       <Card shadow="xd" padding="md" radius="md">
