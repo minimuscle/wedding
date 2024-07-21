@@ -114,7 +114,7 @@ export default function Rsvp() {
       />
       <h1 className={classes.headingImg}>RSVP</h1>
       <Container size={"lg"} className={classes.content}>
-        {loaderData?.status !== 200 && loaderData.status !== 201 && (
+        {loaderData?.status !== 200 && loaderData?.status !== 201 && (
           <CodeInput />
         )}
         {loaderData?.data && <RsvpForm />}
