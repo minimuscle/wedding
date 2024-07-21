@@ -1,19 +1,19 @@
 @font-face {
-  font-family: 'Charmonman';
+  font-family: "Charmonman";
   font-style: normal;
   font-weight: 400;
-  src: url('../../assets/fonts/Charmonman-Regular.ttf');
+  src: url("../../assets/fonts/Charmonman-Regular.ttf");
 }
 
 @font-face {
-  font-family: 'Comfortaa';
+  font-family: "Comfortaa";
   font-style: normal;
   font-weight: 400;
-  src: url('../../assets/fonts/Comfortaa-VariableFont_wght.ttf');
+  src: url("../../assets/fonts/Comfortaa-VariableFont_wght.ttf");
 }
 
 * {
-  font-family: 'Comfortaa', serif;
+  font-family: "Comfortaa", serif;
 }
 
 /* .adminContainer {
@@ -51,7 +51,7 @@
   /** Sets the background colour to be at least the height of the viewport */
   position: relative;
 
-  background-image: url('../../assets/images/background_throne.png');
+  background-image: url("../../assets/images/background_throne.webp");
   background-size: cover;
   background-position: 50% 0%;
   background-repeat: no-repeat;
@@ -61,7 +61,7 @@
   h1 {
     text-align: center;
     color: #ffffff;
-    font-family: 'Charmonman', cursive, sans-serif;
+    font-family: "Charmonman", cursive, sans-serif;
     font-size: rem(75px);
     margin: 0;
   }

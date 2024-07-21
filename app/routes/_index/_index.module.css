@@ -1,26 +1,26 @@
 @font-face {
-  font-family: 'Charmonman';
+  font-family: "Charmonman";
   font-style: normal;
   font-weight: 400;
-  src: url('../../assets/fonts/Charmonman-Regular.ttf');
+  src: url("../../assets/fonts/Charmonman-Regular.ttf");
 }
 
 @font-face {
-  font-family: 'Charmonman';
+  font-family: "Charmonman";
   font-style: normal;
   font-weight: 600;
-  src: url('../../assets/fonts/Charmonman-Bold.ttf');
+  src: url("../../assets/fonts/Charmonman-Bold.ttf");
 }
 
 @font-face {
-  font-family: 'Comfortaa';
+  font-family: "Comfortaa";
   font-style: normal;
   font-weight: 400;
-  src: url('../../assets/fonts/Comfortaa-VariableFont_wght.ttf');
+  src: url("../../assets/fonts/Comfortaa-VariableFont_wght.ttf");
 }
 
 * {
-  font-family: 'Comfortaa', serif;
+  font-family: "Comfortaa", serif;
 }
 
 .container {
@@ -30,7 +30,7 @@
   /** Sets the background colour to be at least the height of the viewport */
   position: relative;
 
-  background-image: url('../../assets/images/background.png');
+  background-image: url("../../assets/images/background.webp");
   background-size: cover;
   background-position: top;
   background-repeat: no-repeat;
@@ -55,7 +55,7 @@
   width: 100%;
 
   h1 {
-    font-family: 'Charmonman', cursive, sans-serif;
+    font-family: "Charmonman", cursive, sans-serif;
     font-size: rem(75px);
     margin: 0;
     color: #fff;
@@ -68,7 +68,7 @@
   }
 
   h2 {
-    font-family: 'Charmonman', cursive, sans-serif;
+    font-family: "Charmonman", cursive, sans-serif;
     font-size: rem(32px);
     color: #fff;
   }
@@ -99,14 +99,14 @@
   }
 
   .headingImg {
-    background-image: url('../../assets/images/heading.png');
+    background-image: url("../../assets/images/heading.webp");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
     padding: 100px;
     margin-top: -50px;
     color: #4d2c00;
-    font-family: 'Charmonman', cursive, sans-serif;
+    font-family: "Charmonman", cursive, sans-serif;
     font-size: rem(50px);
 
     @media screen and (max-width: 520px) {
@@ -123,7 +123,7 @@
     border-radius: rem(12px);
     background-color: rgba(0, 0, 0, 0.25);
     color: #fff;
-    font-family: 'Charmonman', cursive, sans-serif;
+    font-family: "Charmonman", cursive, sans-serif;
     h1 {
       font-size: rem(30px);
     }

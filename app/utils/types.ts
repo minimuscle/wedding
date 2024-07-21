@@ -9,6 +9,7 @@ export interface User {
   phone?: string
   address?: string
   users?: People[]
+  guestNames?: string[]
 }
 
 export interface People {
