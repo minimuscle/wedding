@@ -29,19 +29,14 @@ export default function Generic() {
 
   return (
     <div className={classes.container}>
-      <div className={classes.header}>
-        <div className={classes.overlay}>
-          <Button
-            href="/"
-            image={back_image}
-            hover={back_image_hover}
-            active={back_image_active}
-            width="150px"
-          />
-          <img src={headingImg} alt="Heading" />
-          <h1>{heading}</h1>
-        </div>
-      </div>
+      <Button
+        href="/"
+        image={back_image}
+        hover={back_image_hover}
+        active={back_image_active}
+        width="150px"
+      />
+      <h1 className={classes.headingImg}>{heading}</h1>
       <Container size={"lg"} className={classes.content}>
         <Outlet />
       </Container>

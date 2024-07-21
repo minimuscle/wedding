@@ -75,7 +75,9 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
 
   switch (_intent) {
     case "save":
-      await save(formData, db)
+      // eslint-disable-next-line no-case-declarations
+      const res = await save(formData, db)
+      return res
       break
     case "addGuest":
       await addGuest(formData, db)

@@ -38,7 +38,7 @@ export async function save(formData: FormData, db: Firestore) {
     })
   })
 
-  return null
+  return { success: true }
 }
 
 export async function addGuest(formData: FormData, db: Firestore) {
