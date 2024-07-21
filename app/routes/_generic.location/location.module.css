@@ -5,10 +5,14 @@
   gap: rem(20px);
   img {
     max-width: 100%;
-    max-height: rem(280px);
+    max-height: rem(300px);
 
     @mixin smaller-than 990px {
       max-height: rem(400px);
     }
+  }
+
+  .large {
+    max-height: unset;
   }
 }
